@@ -1,0 +1,12 @@
+[package]
+name = "sapling"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = { version = "0.4.38", features = ["serde"] }
+serde = { version = "1.0.204", features = ["derive"] }
+sqlx = { version = "0.8.0", features = ["all-databases", "chrono", "json", "runtime-tokio"] }
+tokio = { version = "1.39.1", features = ["macros", "rt-multi-thread"] }
+tracing = { version = "0.1.40" }
+tracing-subscriber = { version = "0.3.18", features = ["chrono", "serde"] }
