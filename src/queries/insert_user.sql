@@ -1,1 +1,3 @@
-INSERT INTO user (username) VALUES (?);
+INSERT INTO user (username, password)
+VALUES (?, ?)
+RETURNING user_id;

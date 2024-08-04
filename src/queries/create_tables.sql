@@ -1,9 +1,20 @@
 CREATE TABLE IF NOT EXISTS user (
     user_id     INTEGER NOT NULL,
-    username    VARCHAR(20),
+    username    VARCHAR(20) UNIQUE,
+    password    TEXT NOT NULL,
+    passkey     TEXT,
     created     INT DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS session (
+    session_id  INTEGER NOT NULL,
+    user_id     INTEGER NOT NULL,
+    created     INT DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY(session_id),
+    FOREIGN KEY(user_id) REFERENCES user(user_id)
 );
 
 CREATE TABLE IF NOT EXISTS entity_category (
