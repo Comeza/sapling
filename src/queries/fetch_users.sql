@@ -1,3 +1,0 @@
-SELECT * FROM user
-ORDER BY user_id
-LIMIT ? OFFSET ?;

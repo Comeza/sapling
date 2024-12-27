@@ -1,43 +1,43 @@
-
 use axum::{
-    response::IntoResponse,
-    routing::{get, post},
+    routing::{self},
     Router,
 };
-use sqlx::{prelude::*, sqlite::SqliteConnectOptions, SqlitePool};
-use tracing::info;
+use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
+use state::AppState;
+use thiserror::Error;
+use tokio::net::TcpListener;
 
-mod paths;
+mod auth;
 mod queries;
+mod routes;
+mod state;
 mod user;
 
-#[tokio::main]
-async fn main() -> Result<(), sqlx::Error> {
-    let subscriber = tracing_subscriber::fmt().compact().finish();
-    tracing::subscriber::set_global_default(subscriber).unwrap();
+#[derive(Debug, Error)]
+pub enum BackendError {
+    #[error("SqlxError: {0}")]
+    Sqlx(#[from] sqlx::Error),
 
-    info!("Loading database file");
+    #[error("IOError: {0}")]
+    Io(#[from] std::io::Error),
+}
+
+#[tokio::main]
+async fn main() -> Result<(), BackendError> {
+    tracing_subscriber::fmt().init();
+
     let options = SqliteConnectOptions::new()
         .filename("db.sqlite")
         .create_if_missing(true);
-
     let pool = SqlitePool::connect_with(options).await?;
 
-    info!("Creating tables");
-    pool.execute(queries::CREATE_TABLES).await?;
+    queries::create_tables(&pool).await?;
 
-    let app = Router::new()
-        .route("/", get(root))
-        .route("/users", get(paths::get_users))
-        .route("/user/create", post(paths::create_user))
-        .with_state(pool);
+    let listener = TcpListener::bind("0.0.0.0:3000").await?;
+    let router = Router::new()
+        .route("/auth/register", routing::post(routes::register))
+        .route("/auth/login", routing::post(routes::login))
+        .with_state(AppState { pool });
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
-
-    Ok(())
-}
-
-async fn root() -> impl IntoResponse {
-    "Hey"
+    Ok(axum::serve(listener, router).await?)
 }
