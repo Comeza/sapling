@@ -8,6 +8,7 @@ use thiserror::Error;
 use tokio::net::TcpListener;
 
 mod auth;
+mod product;
 mod queries;
 mod routes;
 mod state;
@@ -24,7 +25,8 @@ pub enum BackendError {
 
 #[tokio::main]
 async fn main() -> Result<(), BackendError> {
-    tracing_subscriber::fmt().init();
+    let subscriber = tracing_subscriber::fmt().compact().finish();
+    tracing::subscriber::set_global_default(subscriber).unwrap();
 
     let options = SqliteConnectOptions::new()
         .filename("db.sqlite")
@@ -37,6 +39,7 @@ async fn main() -> Result<(), BackendError> {
     let router = Router::new()
         .route("/auth/register", routing::post(routes::register))
         .route("/auth/login", routing::post(routes::login))
+        .route("/product/add", routing::post(routes::insert_product))
         .with_state(AppState { pool });
 
     Ok(axum::serve(listener, router).await?)

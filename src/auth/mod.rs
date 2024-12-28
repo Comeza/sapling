@@ -1,16 +1,16 @@
 pub mod session;
 
 use crate::{queries, user::User, AppState};
+use axum::response::Response;
 use axum::{
     async_trait,
     extract::{FromRequest, Request},
     http::{header, StatusCode},
     response::IntoResponse,
 };
-use axum::response::Response;
-use tracing::log::{error, log};
 use sqlx::{query, FromRow};
 use thiserror::Error;
+use tracing::log::error;
 
 #[derive(Debug, Error)]
 pub enum AuthError {
@@ -33,7 +33,7 @@ impl IntoResponse for AuthError {
             error!("Error in Auth request: {err}");
         }
 
-        if let AuthError::Sqlx(err) = self {
+        if let AuthError::Sqlx(_) = self {
             return StatusCode::INTERNAL_SERVER_ERROR.into_response();
         }
 
