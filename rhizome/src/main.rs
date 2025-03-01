@@ -8,7 +8,6 @@ use thiserror::Error;
 use tokio::net::TcpListener;
 
 mod auth;
-mod product;
 mod queries;
 mod routes;
 mod state;

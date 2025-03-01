@@ -1,14 +1,11 @@
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use spore::{Ean, Product};
 use sqlx::query;
 use thiserror::Error;
 use tracing::error;
 
-use crate::{
-    product::{self, Ean, Product},
-    queries,
-    state::AppState,
-};
+use crate::{queries, state::AppState};
 
 #[derive(Debug, Deserialize)]
 pub struct InsertProductRequest {
@@ -58,11 +55,7 @@ pub async fn insert_product(
         return Err(InsertProductError::InvalidProductName);
     }
 
-    let product = Product {
-        ean,
-        product_name: json.product_name.trim().to_owned(),
-        common_name: json.0.common_name,
-    };
+    let product = Product::new(ean, json.product_name.trim()).with_common_name(json.0.common_name);
 
     query(queries::SQL_INSERT_PRODUCT)
         .bind(&product.ean)
