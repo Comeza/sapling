@@ -27,18 +27,26 @@ async fn main() -> Result<(), BackendError> {
     let subscriber = tracing_subscriber::fmt().compact().finish();
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
-    let options = SqliteConnectOptions::new()
-        .filename("db.sqlite")
-        .create_if_missing(true);
+    let options = SqliteConnectOptions::new().filename("db.sqlite").create_if_missing(true);
     let pool = SqlitePool::connect_with(options).await?;
 
     queries::create_tables(&pool).await?;
 
+    let product_router = Router::new()
+        .route("/product", routing::post(routes::insert_product))
+        .route("/product/:ean", routing::delete(routes::delete_product).get(routes::fetch_product));
+
+    #[rustfmt::skip]
+    let auth_router = Router::new()
+        .route("/register", routing::post(routes::register))
+        .route("/login", routing::post(routes::login));
+
     let listener = TcpListener::bind("0.0.0.0:3000").await?;
+
+    #[rustfmt::skip]
     let router = Router::new()
-        .route("/auth/register", routing::post(routes::register))
-        .route("/auth/login", routing::post(routes::login))
-        .route("/product/add", routing::post(routes::insert_product))
+        .nest("/auth/", auth_router)
+        .nest("/api/", product_router)
         .with_state(AppState { pool });
 
     Ok(axum::serve(listener, router).await?)

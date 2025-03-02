@@ -1,9 +1,14 @@
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+    Json,
+};
 use serde::Deserialize;
 use spore::{Ean, Product};
-use sqlx::query;
+use sqlx::{query, FromRow};
 use thiserror::Error;
-use tracing::error;
+use tracing::{error, info};
 
 use crate::{queries, state::AppState};
 
@@ -30,15 +35,17 @@ impl IntoResponse for InsertProductError {
     fn into_response(self) -> axum::response::Response {
         type E = InsertProductError;
         match self {
-            E::InvalidEan | E::InvalidProductName => {
-                (StatusCode::BAD_REQUEST, self.to_string()).into_response()
-            }
+            E::InvalidEan | E::InvalidProductName => (StatusCode::BAD_REQUEST, self.to_string()).into_response(),
             E::Sqlx(error) => {
                 error!("Sqlx error during product registration: {error}");
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
             }
         }
     }
+}
+
+pub async fn delete_product() -> impl IntoResponse {
+    "not yet implemented"
 }
 
 pub async fn insert_product(
@@ -65,4 +72,36 @@ pub async fn insert_product(
         .await?;
 
     Ok(Json(product))
+}
+
+#[derive(Debug, Error)]
+pub enum FetchProductError {
+    #[error("sqlx: {0}")]
+    Sqlx(#[from] sqlx::Error),
+
+    #[error("Product not found")]
+    NotFound,
+}
+
+impl IntoResponse for FetchProductError {
+    fn into_response(self) -> axum::response::Response {
+        use FetchProductError as E;
+        match self {
+            E::Sqlx(error) => {
+                error!("Sqlx error during product registration: {error}");
+                StatusCode::INTERNAL_SERVER_ERROR.into_response()
+            }
+            E::NotFound => StatusCode::NOT_FOUND.into_response(),
+        }
+    }
+}
+
+pub async fn fetch_product(ean: Path<Ean>, state: State<AppState>) -> Result<Json<Product>, FetchProductError> {
+    let product = query(queries::SQL_FETCH_PRODUCT)
+        .bind(&ean.0)
+        .fetch_optional(&state.pool)
+        .await?
+        .ok_or(FetchProductError::NotFound)?;
+
+    Ok(Json(Product::from_row(&product)?))
 }

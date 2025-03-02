@@ -4,7 +4,10 @@ use tracing::info;
 
 pub const SQL_LOGIN_USER: &str = include_str!("login_user.sql");
 pub const SQL_REGISTER_USER: &str = include_str!("register_user.sql");
+
 pub const SQL_FETCH_USER_SESSION: &str = include_str!("fetch_user_session.sql");
+pub const SQL_FETCH_PRODUCT: &str = include_str!("fetch_product.sql");
+
 pub const SQL_INSERT_SESSION: &str = include_str!("insert_user_session.sql");
 pub const SQL_INSERT_PRODUCT: &str = include_str!("insert_product.sql");
 
