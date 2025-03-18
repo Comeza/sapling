@@ -14,7 +14,7 @@ use crate::{queries, state::AppState};
 
 #[derive(Debug, Deserialize)]
 pub struct InsertProductRequest {
-    ean: String,
+    ean: Ean,
     product_name: String,
     common_name: Option<String>,
 }
@@ -52,7 +52,7 @@ pub async fn insert_product(
     state: State<AppState>,
     json: Json<InsertProductRequest>,
 ) -> Result<Json<Product>, InsertProductError> {
-    let ean = Ean(json.ean.clone());
+    let ean = json.ean;
 
     if !ean.is_valid() {
         return Err(InsertProductError::InvalidEan);
