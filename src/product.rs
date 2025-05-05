@@ -1,5 +1,44 @@
+use async_graphql::{CustomValidator, InputValueError, OutputType, ScalarType, SimpleObject, Value, scalar};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
+
+type Id = i32;
+
+#[derive(Debug, FromRow, SimpleObject)]
+pub struct Product {
+    ean: Ean,
+    name: String,
+    //descripton: Option<String>,
+    inserted_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>,
+}
+
+pub struct ProductGroup {
+    group_id: Id,
+    name: String,
+}
+
+pub struct Brand {
+    brand_id: Id,
+    name: String,
+}
+
+#[derive(FromRow)]
+pub struct Stock {
+    stock_id: u64,
+    product: Id,
+    amount: u32,
+    inserted: DateTime<Utc>,
+    last_used: Option<DateTime<Utc>>,
+    cost: Option<i32>,
+}
+
+impl Product {
+    pub fn new(ean: Ean, product_name: impl Into<String>) -> Self {
+        todo!()
+    }
+}
 
 #[derive(sqlx::Type, Debug, Serialize, Deserialize, Clone, Copy)]
 #[sqlx(transparent)]
@@ -12,6 +51,7 @@ use sqlx::FromRow;
 /// However SQLite does not support u64 integers out-of-the-box. Thus we will use an i64, wich is
 /// supported. The most significant bits are unused, thus there won't be negative EANs.
 pub struct Ean(pub i64);
+scalar!(Ean, "EAN");
 
 impl Ean {
     pub fn is_valid(&self) -> bool {
@@ -31,35 +71,19 @@ impl Ean {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, FromRow)]
-pub struct Product {
-    pub ean: Ean,
-
-    // Sometimes procuts have a very long name that nobody uses
-    pub product_name: String,
-    pub common_name: Option<String>,
-}
-
-impl Product {
-    pub fn new(ean: Ean, product_name: impl Into<String>) -> Self {
-        Self {
-            ean,
-            product_name: product_name.into(),
-            common_name: None,
-        }
-    }
-
-    pub fn with_common_name<T: Into<String>>(self, common_name: Option<T>) -> Self {
-        Self {
-            common_name: common_name.map(T::into),
-            ..self
+pub struct EanValidator;
+impl CustomValidator<Ean> for EanValidator {
+    fn check(&self, value: &Ean) -> Result<(), async_graphql::InputValueError<Ean>> {
+        match value.is_valid() {
+            true => Ok(()),
+            false => Err(InputValueError::custom(format!("checksum is not valid"))),
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::Ean;
+    use super::Ean;
 
     #[test]
     fn valid_ean13() {
