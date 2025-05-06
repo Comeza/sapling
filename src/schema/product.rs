@@ -7,10 +7,11 @@ use crate::{
     queries,
 };
 
-use super::RootQuery;
+#[derive(Default)]
+pub struct ProductQuery;
 
 #[Object]
-impl RootQuery {
+impl ProductQuery {
     async fn product<'a>(
         &self,
         ctx: &Context<'a>,
@@ -24,6 +25,36 @@ impl RootQuery {
             None => None,
         };
 
+        Ok(product)
+    }
+
+    async fn products<'a>(&self, ctx: &Context<'a>) -> Result<Vec<Product>> {
+        let pool = ctx.data::<Database>()?;
+        let rows = sqlx::query("SELECT * FROM product LIMIT 1000;")
+            .fetch_all(pool)
+            .await?
+            .iter()
+            .map(Product::from_row)
+            .collect::<Result<Vec<Product>, _>>()?;
+
+        Ok(rows)
+    }
+}
+
+#[derive(Default)]
+pub struct ProductMutation;
+
+#[Object]
+impl ProductMutation {
+    async fn insert_product<'a>(
+        &self,
+        ctx: &'a Context<'a>,
+        #[graphql(validator(custom = EanValidator))] ean: Ean,
+        name: String,
+    ) -> Result<Product> {
+        let pool = ctx.data::<Database>()?;
+        let row = sqlx::query(queries::SQL_INSERT_PRODUCT).bind(ean).bind(name).fetch_one(pool).await?;
+        let product = Product::from_row(&row)?;
         Ok(product)
     }
 }

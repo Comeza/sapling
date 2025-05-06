@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use async_graphql::{EmptyMutation, EmptySubscription, Schema};
+use async_graphql::{EmptySubscription, Schema};
 use async_graphql_axum::GraphQL;
 use axum::{Router, routing::get};
 use sqlx::{Pool, Sqlite, SqlitePool, sqlite::SqliteConnectOptions};
@@ -32,7 +32,9 @@ async fn main() -> Result<(), BackendError> {
     let pool = setup_db("db.sqlite").await?;
     let listener = TcpListener::bind("0.0.0.0:3000").await?;
 
-    let gql_schema = Schema::build(schema::RootQuery, schema::RootMutation, EmptySubscription).data(pool).finish();
+    let gql_schema = Schema::build(schema::RootQuery::default(), schema::RootMutation::default(), EmptySubscription)
+        .data(pool)
+        .finish();
 
     if cfg!(debug_assertions) {
         info!("Starting webserver on http://localhost:3000");

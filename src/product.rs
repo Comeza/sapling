@@ -1,4 +1,4 @@
-use async_graphql::{CustomValidator, InputValueError, OutputType, ScalarType, SimpleObject, Value, scalar};
+use async_graphql::{CustomValidator, InputValueError, SimpleObject, scalar};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
@@ -14,7 +14,8 @@ pub struct Product {
     updated_at: DateTime<Utc>,
 }
 
-pub struct ProductGroup {
+#[derive(Debug, FromRow, SimpleObject)]
+pub struct Group {
     group_id: Id,
     name: String,
 }
@@ -26,18 +27,12 @@ pub struct Brand {
 
 #[derive(FromRow)]
 pub struct Stock {
-    stock_id: u64,
-    product: Id,
+    stock_id: Id,
+    product_id: Id,
     amount: u32,
     inserted: DateTime<Utc>,
     last_used: Option<DateTime<Utc>>,
     cost: Option<i32>,
-}
-
-impl Product {
-    pub fn new(ean: Ean, product_name: impl Into<String>) -> Self {
-        todo!()
-    }
 }
 
 #[derive(sqlx::Type, Debug, Serialize, Deserialize, Clone, Copy)]

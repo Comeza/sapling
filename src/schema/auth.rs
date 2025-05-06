@@ -2,14 +2,16 @@ use async_graphql::{Context, Object, Result};
 use sqlx::FromRow;
 
 use crate::{
-    Database, queries,
+    Database,
+    queries,
     session::{Session, User},
 };
 
-use super::RootMutation;
+#[derive(Default)]
+pub struct AuthMutation;
 
 #[Object]
-impl RootMutation {
+impl AuthMutation {
     async fn login<'a>(&self, ctx: &Context<'a>, username: String, password: String) -> Result<Session> {
         let db = ctx.data::<Database>()?;
         let row =
