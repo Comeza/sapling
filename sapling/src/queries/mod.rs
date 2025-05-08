@@ -7,3 +7,8 @@ pub const SQL_INSERT_PRODUCT: &str = include_str!("insert_product.sql");
 
 pub const SQL_CREATE_AUTH_TABLES: &str = include_str!("setup/create_auth_tables.sql");
 pub const SQL_CREATE_TABLES: &str = include_str!("setup/create_tables.sql");
+
+pub const SQL_FETCH_USER: &str = include_str!("fetch_user.sql");
+
+pub const SQL_FETCH_PRODUCT_TAGS: &str = include_str!("fetch_product_tags.sql");
+pub const SQL_FETCH_PRODUCT_GROUPS: &str = include_str!("fetch_product_groups.sql");

@@ -30,7 +30,7 @@ impl ProductQuery {
 
     async fn products<'a>(&self, ctx: &Context<'a>) -> Result<Vec<Product>> {
         let pool = ctx.data::<Database>()?;
-        let rows = sqlx::query("SELECT * FROM product LIMIT 1000;")
+        let rows = sqlx::query("SELECT * FROM product;")
             .fetch_all(pool)
             .await?
             .iter()

@@ -1,9 +1,8 @@
-use async_graphql::{Context, Object, Result};
+use async_graphql::{ComplexObject, Context, Object, Result};
 use sqlx::FromRow;
 
 use crate::{
-    Database,
-    queries,
+    Database, queries,
     session::{Session, User},
 };
 
@@ -41,6 +40,16 @@ impl AuthMutation {
         let row = sqlx::query(queries::SQL_REGISTER_USER).bind(&username).bind(&password).fetch_one(db).await?;
         let user = User::from_row(&row)?;
 
+        Ok(user)
+    }
+}
+
+#[ComplexObject]
+impl Session {
+    async fn user<'a>(&self, ctx: &Context<'a>) -> Result<User> {
+        let db = ctx.data::<Database>()?;
+        let row = sqlx::query(queries::SQL_FETCH_USER).bind(self.user_id).fetch_one(db).await?;
+        let user = User::from_row(&row)?;
         Ok(user)
     }
 }

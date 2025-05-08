@@ -1,28 +1,41 @@
-use async_graphql::{CustomValidator, InputValueError, SimpleObject, scalar};
+use async_graphql::{ComplexObject, Context, CustomValidator, InputValueError, SimpleObject, scalar};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
-type Id = i32;
+use crate::{Database, queries};
+
+type Id = u32;
 
 #[derive(Debug, FromRow, SimpleObject)]
+#[graphql(complex)]
 pub struct Product {
     ean: Ean,
     name: String,
-    //descripton: Option<String>,
+    brand_id: Option<Id>,
+    description: Option<String>,
     inserted_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
 }
 
+#[derive(Debug, FromRow)]
+pub(crate) struct ProductTag {
+    ean: Ean,
+    tag_id: Id,
+    created_at: DateTime<Utc>,
+}
+
 #[derive(Debug, FromRow, SimpleObject)]
-pub struct Group {
-    group_id: Id,
+pub struct Tag {
+    tag_id: Id,
     name: String,
 }
 
 pub struct Brand {
     brand_id: Id,
     name: String,
+    homepage: Option<String>,
+    wikipedia: Option<String>,
 }
 
 #[derive(FromRow)]
@@ -30,9 +43,28 @@ pub struct Stock {
     stock_id: Id,
     product_id: Id,
     amount: u32,
-    inserted: DateTime<Utc>,
-    last_used: Option<DateTime<Utc>>,
+    created_at: DateTime<Utc>,
+    updated_at: Option<DateTime<Utc>>,
     cost: Option<i32>,
+}
+
+#[ComplexObject]
+impl Product {
+    async fn tags<'a>(&self, ctx: &Context<'a>) -> async_graphql::Result<Vec<Tag>> {
+        let pool = ctx.data::<Database>()?;
+        let rows = sqlx::query(queries::SQL_FETCH_PRODUCT_TAGS).bind(self.ean).fetch_all(pool).await?;
+        let tags = rows.iter().map(Tag::from_row).collect::<Result<Vec<_>, _>>()?;
+
+        Ok(tags)
+    }
+
+    async fn groups<'a>(&self, ctx: &Context<'a>) -> async_graphql::Result<Vec<Tag>> {
+        let pool = ctx.data::<Database>()?;
+        let rows = sqlx::query(queries::SQL_FETCH_PRODUCT_GROUPS).bind(self.ean).fetch_all(pool).await?;
+        let tags = rows.iter().map(Tag::from_row).collect::<Result<Vec<_>, _>>()?;
+
+        Ok(tags)
+    }
 }
 
 #[derive(sqlx::Type, Debug, Serialize, Deserialize, Clone, Copy)]

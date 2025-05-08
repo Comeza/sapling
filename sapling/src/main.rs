@@ -41,9 +41,7 @@ async fn main() -> Result<(), BackendError> {
         info!("Starting gql endpoint on http://localhost:3000/gql");
     }
 
-    #[rustfmt::skip]
-    let router = Router::new()
-        .route("/gql", get(schema::graphiql).post_service(GraphQL::new(gql_schema)));
+    let router = Router::new().route("/gql", get(schema::graphiql).post_service(GraphQL::new(gql_schema)));
 
     Ok(axum::serve(listener, router).await?)
 }

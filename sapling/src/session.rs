@@ -28,8 +28,12 @@ impl Debug for User {
 }
 
 #[derive(Debug, FromRow, SimpleObject)]
+#[graphql(complex)]
 pub struct Session {
     pub token: String,
+
+    #[graphql(skip)]
     pub user_id: u32,
+
     pub created: DateTime<Utc>,
 }
