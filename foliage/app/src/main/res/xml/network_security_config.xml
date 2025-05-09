@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+
+
+    <!-- TODO: REMOVE ME I AM UNSECURE ONLY DEVELOPMENT USE -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.2.3.67</domain>
+    </domain-config>
+
+
+</network-security-config>
