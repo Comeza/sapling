@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "sapling.foliage"
-        minSdk = 31
+        minSdk = 30
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -54,8 +54,7 @@ apollo {
 }
 
 dependencies {
-
-
+    implementation(libs.play.services.code.scanner)
     implementation(libs.androidx.material)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.material.icons.extended)
