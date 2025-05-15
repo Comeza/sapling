@@ -38,13 +38,12 @@ pub struct Brand {
     wikipedia: Option<String>,
 }
 
-#[derive(FromRow)]
+#[derive(FromRow, SimpleObject)]
+#[graphql(complex)]
 pub struct Stock {
     stock_id: Id,
-    product_id: Id,
-    amount: u32,
+    ean: Ean,
     created_at: DateTime<Utc>,
-    updated_at: Option<DateTime<Utc>>,
     cost: Option<i32>,
 }
 
@@ -64,6 +63,17 @@ impl Product {
         let tags = rows.iter().map(Tag::from_row).collect::<Result<Vec<_>, _>>()?;
 
         Ok(tags)
+    }
+}
+
+#[ComplexObject]
+impl Stock {
+    async fn product<'a>(&self, ctx: &Context<'a>) -> async_graphql::Result<Product> {
+        let pool = ctx.data::<Database>()?;
+        let row = sqlx::query(queries::SQL_FETCH_PRODUCT).bind(self.ean).fetch_one(pool).await?;
+        let product = Product::from_row(&row)?;
+
+        Ok(product)
     }
 }
 

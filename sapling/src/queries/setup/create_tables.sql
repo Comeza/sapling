@@ -36,8 +36,7 @@ CREATE TABLE product (
 
 CREATE TABLE stock (
     stock_id    INTEGER     PRIMARY KEY,
-    product_ean INTEGER     REFERENCES product(ean),
+    ean         INTEGER     REFERENCES product(ean),
     created_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP,
     cost        INTEGER
 );
