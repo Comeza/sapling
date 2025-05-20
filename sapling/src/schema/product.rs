@@ -3,7 +3,7 @@ use sqlx::FromRow;
 
 use crate::{
     Database,
-    product::{Ean, EanValidator, Product, Stock},
+    product::{Ean, EanValidator, Product, Item},
     queries,
 };
 
@@ -19,9 +19,7 @@ impl ProductQuery {
     ) -> Result<Option<Product>> {
         let pool = ctx.data::<Database>()?;
         let row = sqlx::query(queries::SQL_FETCH_PRODUCT).bind(&ean).fetch_optional(pool).await?;
-
-        let product = match row {
-            Some(row) => Some(Product::from_row(&row)?),
+let product = match row { Some(row) => Some(Product::from_row(&row)?),
             None => None,
         };
 
@@ -40,14 +38,14 @@ impl ProductQuery {
         Ok(rows)
     }
 
-    async fn stocks<'a>(&self, ctx: &Context<'a>) -> Result<Vec<Stock>> {
+    async fn items<'a>(&self, ctx: &Context<'a>) -> Result<Vec<Item>> {
         let pool = ctx.data::<Database>()?;
-        let rows = sqlx::query("SELECT * FROM stock;")
+        let rows = sqlx::query("SELECT * FROM item;")
             .fetch_all(pool)
             .await?
             .iter()
-            .map(Stock::from_row)
-            .collect::<Result<Vec<Stock>, _>>()?;
+            .map(Item::from_row)
+            .collect::<Result<Vec<Item>, _>>()?;
 
         Ok(rows)
     }
@@ -70,10 +68,10 @@ impl ProductMutation {
         Ok(product)
     }
 
-    async fn insert_stock<'a>(&self, ctx: &'a Context<'a>, ean: Ean, cost: i32) -> Result<Stock> {
+    async fn insert_item<'a>(&self, ctx: &'a Context<'a>, ean: Ean, cost: i32) -> Result<Item> {
         let pool = ctx.data::<Database>()?;
-        let row = sqlx::query(queries::SQL_INSERT_STOCK).bind(ean).bind(cost).fetch_one(pool).await?;
-        let stock = Stock::from_row(&row)?;
+        let row = sqlx::query(queries::SQL_INSERT_ITEM).bind(ean).bind(cost).fetch_one(pool).await?;
+        let stock = Item::from_row(&row)?;
         Ok(stock)
     }
 }

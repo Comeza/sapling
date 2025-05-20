@@ -1,1 +1,1 @@
-SELECT * FROM stock where stock_id = ?;
+SELECT * FROM item where item_id = ?;

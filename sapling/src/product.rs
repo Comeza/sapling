@@ -40,8 +40,8 @@ pub struct Brand {
 
 #[derive(FromRow, SimpleObject)]
 #[graphql(complex)]
-pub struct Stock {
-    stock_id: Id,
+pub struct Item {
+    item_id: Id,
     ean: Ean,
     created_at: DateTime<Utc>,
     cost: Option<i32>,
@@ -64,10 +64,18 @@ impl Product {
 
         Ok(tags)
     }
+
+    async fn items<'a>(&self, ctx: &Context<'a>) -> async_graphql::Result<Vec<Item>> {
+        let pool = ctx.data::<Database>()?;
+        let rows = sqlx::query("SELECT * FROM item WHERE ean = ?;").bind(self.ean).fetch_all(pool).await?;
+        let items = rows.iter().map(Item::from_row).collect::<Result<Vec<_>, _>>()?;
+        
+        Ok(items)
+    }
 }
 
 #[ComplexObject]
-impl Stock {
+impl Item {
     async fn product<'a>(&self, ctx: &Context<'a>) -> async_graphql::Result<Product> {
         let pool = ctx.data::<Database>()?;
         let row = sqlx::query(queries::SQL_FETCH_PRODUCT).bind(self.ean).fetch_one(pool).await?;
