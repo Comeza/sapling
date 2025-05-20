@@ -1,7 +1,7 @@
 CREATE TABLE brand (
     brand_id    INTEGER     PRIMARY KEY,
     name        VARCHAR     NOT NULL,
-    created_at  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
+    created_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE tag (
@@ -34,10 +34,9 @@ CREATE TABLE product (
     updated_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE stock (
-    stock_id    INTEGER     PRIMARY KEY,
-    product_ean INTEGER     REFERENCES product(ean),
+CREATE TABLE item (
+    item_id    INTEGER     PRIMARY KEY,
+    ean         INTEGER     REFERENCES product(ean),
     created_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP,
     cost        INTEGER
 );
