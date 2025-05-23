@@ -1,4 +1,4 @@
-package sapling.foliage
+package sapling.foliage.gql
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

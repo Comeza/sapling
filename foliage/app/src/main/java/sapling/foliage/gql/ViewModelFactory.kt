@@ -1,7 +1,6 @@
-package sapling.foliage
+package sapling.foliage.gql
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
