@@ -1,4 +1,4 @@
-package sapling.foliage
+package sapling.foliage.gql
 
 import android.content.Context
 import com.apollographql.apollo.ApolloClient

@@ -11,6 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.preference.Preference
+import me.zhanghai.compose.preference.Preference
+import me.zhanghai.compose.preference.Preferences
+import sapling.foliage.gql.GraphQLScreen
 import sapling.foliage.ui.components.Inventory
 import sapling.foliage.ui.components.MainNavbar
 import sapling.foliage.ui.components.Settings
@@ -38,7 +42,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable<ShoppingTourList> { ShoppingScreen() }
                         composable<Inventory> { InventoryScreen() }
-                        composable<Settings> { GraphQLScreen() }
+                        composable<Settings> { SettingsScreen() }
                     }
                     MainNavbar(navController = navController)
                 }
