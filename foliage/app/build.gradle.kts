@@ -48,29 +48,31 @@ apollo {
         packageName.set("sapling.foliage")
         schemaFile.set(file("src/main/graphql/sapling/foliage/service/schema.graphqls"))
         introspection {
-            endpointUrl.set("http://localhost:3000/gql")
+            // TODO: Use setting or env to control schema source
+            endpointUrl.set("https://sapling.geigr.dev/gql")
         }
     }
 }
 
 dependencies {
-    implementation(libs.zhanghai.preferences)
-    implementation(libs.androidx.preference.ktx)
-    implementation(libs.androidx.material)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.material.icons.extended)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.material)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.preference.ktx)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.apollo.runtime)
     implementation(libs.apollo.api)
+    implementation(libs.apollo.runtime)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.zhanghai.preferences)
+    implementation(platform(libs.androidx.compose.bom))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
