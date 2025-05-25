@@ -1,0 +1,11 @@
+query ProductsQuery {
+    products {
+        ean
+        name
+        description
+        groups {
+            name
+        }
+        tags { name }
+    }
+}
