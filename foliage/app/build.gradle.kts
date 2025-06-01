@@ -3,8 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 
-    id("com.apollographql.apollo")
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.apollo)
 }
 
 android {
@@ -45,7 +45,7 @@ android {
 
 apollo {
     service("service") {
-        packageName.set("sapling.foliage")
+        packageName.set("sapling.foliage.gql")
         schemaFile.set(file("src/main/graphql/sapling/foliage/service/schema.graphqls"))
         introspection {
             // TODO: Use setting or env to control schema source

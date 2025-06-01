@@ -24,6 +24,18 @@ The `Int` scalar type represents non-fractional whole numeric values.
 """
 scalar Int
 
+type Item {
+  itemId: Int!
+
+  ean: EAN!
+
+  createdAt: DateTime!
+
+  cost: Int
+
+  product: Product!
+}
+
 type Product {
   ean: EAN!
 
@@ -40,6 +52,8 @@ type Product {
   tags: [Tag!]!
 
   groups: [Tag!]!
+
+  items: [Item!]!
 }
 
 type RootMutation {
@@ -48,12 +62,16 @@ type RootMutation {
   register(username: String!, password: String!): User!
 
   insertProduct(ean: EAN!, name: String!): Product!
+
+  insertItem(ean: EAN!, cost: Int!): Item!
 }
 
 type RootQuery {
   product(ean: EAN!): Product
 
   products: [Product!]!
+
+  items: [Item!]!
 }
 
 type Session {

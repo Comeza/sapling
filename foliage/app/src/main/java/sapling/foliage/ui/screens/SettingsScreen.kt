@@ -9,7 +9,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.preference.PreferenceScreen
 import me.zhanghai.compose.preference.textFieldPreference
 
 @Composable
