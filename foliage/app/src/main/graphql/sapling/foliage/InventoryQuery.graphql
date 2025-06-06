@@ -1,0 +1,11 @@
+query InventoryQuery {
+    items {
+        product {
+            name
+            ean
+        }
+
+        cost
+        createdAt
+    }
+}
