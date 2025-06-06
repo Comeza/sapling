@@ -18,6 +18,7 @@ import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import me.zhanghai.compose.preference.defaultPreferenceFlow
 import sapling.foliage.apolloClient
 import sapling.foliage.gql.InventoryQuery
 import java.time.Instant
@@ -41,17 +43,19 @@ fun InventoryScreen(modifier: Modifier = Modifier) {
     var isRefreshing by remember { mutableStateOf(false) }
     val state = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
+    val homeServer by defaultPreferenceFlow().collectAsState()
 
     fun fetchData() {
         isRefreshing = true
         coroutineScope.launch {
-            val response = apolloClient.query(InventoryQuery()).execute()
+            val response =
+                apolloClient(homeServer["home_server_url"]).query(InventoryQuery()).execute()
             itemList = response.data?.items ?: emptyList()
             isRefreshing = false
         }
     }
 
-    LaunchedEffect(apolloClient) {
+    LaunchedEffect(homeServer) {
         fetchData()
     }
 

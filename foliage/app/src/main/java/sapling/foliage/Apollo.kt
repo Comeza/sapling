@@ -1,6 +1,10 @@
 package sapling.foliage
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.apollographql.apollo.ApolloClient
+import me.zhanghai.compose.preference.defaultPreferenceFlow
 
-val apolloClient = ApolloClient.Builder().serverUrl("https://sapling.geigr.dev/gql")
-    .build()
+fun apolloClient(serverUrl: String?): ApolloClient =
+    ApolloClient.Builder().serverUrl(serverUrl ?: "https://sapling.geigr.dev/gql")
+        .build()
