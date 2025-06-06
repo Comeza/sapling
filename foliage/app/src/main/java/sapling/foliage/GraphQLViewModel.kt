@@ -7,6 +7,7 @@ import com.apollographql.apollo.ApolloClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import sapling.foliage.gql.ProductsQuery
 
 class GraphQLViewModel(private val apolloClient: ApolloClient) : ViewModel() {
     private val _uiState = MutableStateFlow("Loading...")
