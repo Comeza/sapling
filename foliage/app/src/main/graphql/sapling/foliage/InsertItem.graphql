@@ -1,0 +1,5 @@
+mutation InsertItem($ean: EAN!, $cost: Int!) {
+  insertItem(ean: $ean, cost: $cost) {
+    createdAt
+  }
+}

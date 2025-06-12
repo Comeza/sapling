@@ -25,13 +25,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.Button
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import me.zhanghai.compose.preference.defaultPreferenceFlow
 import sapling.foliage.apolloClient
 import sapling.foliage.gql.InventoryQuery
-import java.time.Instant
+import sapling.foliage.gql.DeleteItemMutation
+import sapling.foliage.ui.components.AddItemForm
+import sapling.foliage.ui.components.BarcodeScanner
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +59,10 @@ fun InventoryScreen(modifier: Modifier = Modifier) {
         }
     }
 
+    var showAddItemForm by remember { mutableStateOf(false) }
+    var scannedEan by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
     LaunchedEffect(homeServer) {
         fetchData()
     }
@@ -66,20 +74,31 @@ fun InventoryScreen(modifier: Modifier = Modifier) {
             onRefresh = { fetchData() }
         ),
         floatingActionButton = {
-            FloatingActionButton(onClick = {}) {
-                Icon(Icons.Filled.Add, "Insert Items")
+            if (!showAddItemForm) {
+                FloatingActionButton(onClick = { BarcodeScanner.scan(context, { ean ->
+                    scannedEan = ean
+                    showAddItemForm = true
+                }, {})}) {
+                    Icon(Icons.Filled.Add, "Insert Items")
+                }
             }
         },
+
         topBar = { TopAppBar(title = { Text("Inventory") }) }
     ) {
-        ItemList(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it),
-            items = itemList,
-            isRefreshing = isRefreshing,
-            onRefresh = { fetchData() },
-        )
+        if (showAddItemForm) {
+            AddItemForm(
+                ean = scannedEan.toLongOrNull() ?: 0L,
+                onDismiss = { showAddItemForm = false }
+            )
+        } else {
+            ItemList(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                items = itemList,
+            )
+        }
     }
 }
 
@@ -109,10 +128,22 @@ fun InventoryItem(
     item: InventoryQuery.Item,
     modifier: Modifier = Modifier
 ) {
-    val date = Instant.parse(item.createdAt as String)
+    val homeServer by defaultPreferenceFlow().collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
     ListItem(
         modifier = modifier,
         headlineContent = { Text(item.product.name) },
-        supportingContent = { Text(item.product.ean.toString()) },
-        trailingContent = { Text(date.toString()) })
+        trailingContent = {
+            Button(onClick = {
+                coroutineScope.launch {
+                    apolloClient(homeServer["home_server_url"] ?: "")
+                            .mutation(DeleteItemMutation(itemId = item.itemId))
+                            .execute()
+                }
+            }) {
+                Text("Delete")
+            }
+        }
+    )
 }
