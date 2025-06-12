@@ -68,11 +68,7 @@ fun InventoryScreen(modifier: Modifier = Modifier) {
     }
 
     Scaffold(
-        modifier = Modifier.pullToRefresh(
-            state = state,
-            isRefreshing = isRefreshing,
-            onRefresh = { fetchData() }
-        ),
+        modifier = Modifier,
         floatingActionButton = {
             if (!showAddItemForm) {
                 FloatingActionButton(onClick = { BarcodeScanner.scan(context, { ean ->
@@ -97,6 +93,11 @@ fun InventoryScreen(modifier: Modifier = Modifier) {
                     .fillMaxSize()
                     .padding(it),
                 items = itemList,
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    isRefreshing = true
+                    fetchData()
+                }
             )
         }
     }
@@ -107,7 +108,7 @@ fun InventoryScreen(modifier: Modifier = Modifier) {
 fun ItemList(
     items: List<InventoryQuery.Item>,
     modifier: Modifier = Modifier,
-    isRefreshing: Boolean = false,
+    isRefreshing: Boolean,
     onRefresh: () -> Unit = {},
 ) {
     PullToRefreshBox(
