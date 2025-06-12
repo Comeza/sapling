@@ -63,8 +63,6 @@ type RootMutation {
 
   insertProduct(ean: EAN!, name: String!): Product!
 
-  deleteProduct(ean: EAN!): Boolean!
-
   insertItem(ean: EAN!, cost: Int!): Item!
 
   deleteItem(itemId: Int!): Boolean!

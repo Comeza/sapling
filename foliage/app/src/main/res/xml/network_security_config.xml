@@ -4,7 +4,7 @@
 
     <!-- TODO: REMOVE ME I AM UNSECURE ONLY DEVELOPMENT USE -->
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">10.2.3.67</domain>
+        <domain includeSubdomains="true">10.2.3.97</domain>
     </domain-config>
 
 

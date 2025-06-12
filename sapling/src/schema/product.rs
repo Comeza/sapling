@@ -3,7 +3,7 @@ use sqlx::FromRow;
 
 use crate::{
     Database,
-    product::{Ean, EanValidator, Product, Item},
+    product::{Ean, EanValidator, Item, Product},
     queries,
 };
 
@@ -19,7 +19,8 @@ impl ProductQuery {
     ) -> Result<Option<Product>> {
         let pool = ctx.data::<Database>()?;
         let row = sqlx::query(queries::SQL_FETCH_PRODUCT).bind(&ean).fetch_optional(pool).await?;
-let product = match row { Some(row) => Some(Product::from_row(&row)?),
+        let product = match row {
+            Some(row) => Some(Product::from_row(&row)?),
             None => None,
         };
 
@@ -68,10 +69,22 @@ impl ProductMutation {
         Ok(product)
     }
 
+    async fn delete_product<'a>(&self, ctx: &'a Context<'a>, ean: Ean) -> Result<bool> {
+        let pool = ctx.data::<Database>()?;
+        let rows_affected = sqlx::query(queries::SQL_DELETE_PRODUCT).bind(&ean).execute(pool).await?.rows_affected();
+        Ok(rows_affected > 0)
+    }
+
     async fn insert_item<'a>(&self, ctx: &'a Context<'a>, ean: Ean, cost: i32) -> Result<Item> {
         let pool = ctx.data::<Database>()?;
         let row = sqlx::query(queries::SQL_INSERT_ITEM).bind(ean).bind(cost).fetch_one(pool).await?;
         let stock = Item::from_row(&row)?;
         Ok(stock)
+    }
+
+    async fn delete_item<'a>(&self, ctx: &'a Context<'a>, item_id: i32) -> Result<bool> {
+        let pool = ctx.data::<Database>()?;
+        let rows_affected = sqlx::query(queries::SQL_DELETE_ITEM).bind(item_id).execute(pool).await?.rows_affected();
+        Ok(rows_affected > 0)
     }
 }

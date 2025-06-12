@@ -1,0 +1,5 @@
+mutation InsertProduct($ean: EAN!, $name: String!) {
+  insertProduct(ean: $ean, name: $name) {
+    name
+  }
+}

@@ -1,0 +1,11 @@
+query ProductQuery($ean: EAN!) {
+    product(ean: $ean) {
+        ean
+        name
+        description
+        groups {
+            name
+        }
+        tags { name }
+    }
+}
